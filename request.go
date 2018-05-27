@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/parnurzeal/gorequest"
+	"encoding/json"
 )
 
 type (
 	request struct {
 		remote     string
 		url        string
-		timeout    time.Duration
 		SuperAgent *gorequest.SuperAgent
 		remotes    map[string][]string
 		timeOut    time.Duration
@@ -95,8 +95,45 @@ func (r *request) GetParam() *request {
 func (r *request) Get() *Response {
 
 	r.SuperAgent.Timeout(r.GetTimeOut()).Get(r.url)
+
 	r.GetParam()
+
 	res, body, err := r.SuperAgent.End()
+
+	if err == nil && res.StatusCode >= 200 {
+
+		return NewResponse(body)
+	}
+
+	return NewResponse("{}")
+}
+
+func (r *request) Post() *Response {
+
+	r.SuperAgent.Timeout(r.GetTimeOut()).Post(r.url)
+
+	r.GetParam()
+
+	res, body, err := r.SuperAgent.End()
+
+	if err == nil && res.StatusCode >= 200 {
+
+		return NewResponse(body)
+	}
+
+	return NewResponse("{}")
+}
+
+func (r *request) PostJson() *Response {
+
+	r.SuperAgent.Timeout(r.GetTimeOut()).Post(r.url)
+
+	paramsJson, errMsg := json.Marshal(r.param)
+	if errMsg != nil {
+		return NewResponse("{}")
+	}
+
+	res, body, err := r.SuperAgent.Send(paramsJson).End()
 
 	if err == nil && res.StatusCode >= 200 {
 
