@@ -66,6 +66,16 @@ func (c *Client) PostJson(
 	return c.request.SetRemote(remote).SetPath(path).SetParam(dataJson).PostJson()
 }
 
+func (c *Client) Delete(
+	remote,
+	path string,
+	dataForm Params) *Response {
+
+	c.request = NewRequest(c.remotes, c.debug)
+
+	return c.request.SetRemote(remote).SetPath(path).SetParam(dataForm).Delete()
+}
+
 // set request header data params
 func (c *Client) SetHeader(data map[string]string) *Client {
 	c.request.SetHeader(data)

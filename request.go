@@ -7,6 +7,7 @@ import (
 
 	"github.com/parnurzeal/gorequest"
 	"encoding/json"
+	"net/http"
 )
 
 type (
@@ -100,12 +101,12 @@ func (r *request) Get() *Response {
 
 	res, body, err := r.SuperAgent.End()
 
-	if err == nil && res.StatusCode >= 200 {
+	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
 
-		return NewResponse(body)
+		return NewResponse(body, http.StatusOK)
 	}
 
-	return NewResponse("{}")
+	return NewResponse("{}", res.StatusCode)
 }
 
 func (r *request) Post() *Response {
@@ -116,12 +117,11 @@ func (r *request) Post() *Response {
 
 	res, body, err := r.SuperAgent.End()
 
-	if err == nil && res.StatusCode >= 200 {
-
-		return NewResponse(body)
+	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
+		return NewResponse(body, http.StatusOK)
 	}
 
-	return NewResponse("{}")
+	return NewResponse("{}", res.StatusCode)
 }
 
 func (r *request) PostJson() *Response {
@@ -130,15 +130,30 @@ func (r *request) PostJson() *Response {
 
 	paramsJson, errMsg := json.Marshal(r.param)
 	if errMsg != nil {
-		return NewResponse("{}")
+		return NewResponse("{}", 1)
 	}
 
 	res, body, err := r.SuperAgent.Send(paramsJson).End()
 
-	if err == nil && res.StatusCode >= 200 {
+	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
 
-		return NewResponse(body)
+		return NewResponse(body, http.StatusOK)
 	}
 
-	return NewResponse("{}")
+	return NewResponse("{}", res.StatusCode)
+}
+
+func (r *request) Delete() *Response {
+	r.SuperAgent.Timeout(r.GetTimeOut()).Delete(r.url)
+
+	r.GetParam()
+
+	res, body, err := r.SuperAgent.End()
+
+	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
+
+		return NewResponse(body, http.StatusOK)
+	}
+
+	return NewResponse("{}", res.StatusCode)
 }
