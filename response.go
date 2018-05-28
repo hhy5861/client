@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type (
@@ -23,8 +22,6 @@ type (
 )
 
 func NewResponse(body string, statusCode int) *Response {
-	fmt.Println(">>>new status code>>>: ", statusCode)
-
 	res := &Response{
 		Body:       body,
 		statusCode: statusCode,
@@ -50,7 +47,6 @@ func (r *Response) ResolveBody() *Response {
 }
 
 func (r *Response) GetStatusCode() int {
-	fmt.Println(">>>status code>>>: ", r.statusCode)
 	return r.statusCode
 }
 
