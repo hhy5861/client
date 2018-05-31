@@ -55,6 +55,17 @@ func (c *Client) Post(
 	return c.request.SetRemote(remote).SetPath(path).SetParam(dataForm).Post()
 }
 
+//request put
+func (c *Client) Put(
+	remote,
+	path string,
+	dataForm Params) *Response {
+
+	c.request = NewRequest(c.remotes, c.debug)
+
+	return c.request.SetRemote(remote).SetPath(path).SetParam(dataForm).Put()
+}
+
 //request post json
 func (c *Client) PostJson(
 	remote,

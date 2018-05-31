@@ -124,6 +124,21 @@ func (r *request) Post() *Response {
 	return NewResponse("{}", res.StatusCode)
 }
 
+func (r *request) Put() *Response {
+
+	r.SuperAgent.Timeout(r.GetTimeOut()).Put(r.url)
+
+	r.GetParam()
+
+	res, body, err := r.SuperAgent.End()
+
+	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
+		return NewResponse(body, http.StatusOK)
+	}
+
+	return NewResponse("{}", res.StatusCode)
+}
+
 func (r *request) PostJson() *Response {
 
 	r.SuperAgent.Timeout(r.GetTimeOut()).Post(r.url)
