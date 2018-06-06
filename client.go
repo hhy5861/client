@@ -96,7 +96,7 @@ func (c *Client) SetHeader(data map[string]string) *Client {
 
 // set request time out params
 func (c *Client) SetTimeOut(times time.Duration) *Client {
-	c.SetTimeOut(times)
+	c.request.SetTimeOut(times)
 
 	return c
 }
