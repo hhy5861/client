@@ -116,8 +116,8 @@ func (r *request) Post() *Response {
 	r.GetParam()
 
 	res, body, err := r.SuperAgent.End()
-
 	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
+		fmt.Println(string(body))
 		return NewResponse(body, http.StatusOK)
 	}
 
