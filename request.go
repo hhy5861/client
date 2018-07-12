@@ -18,6 +18,7 @@ type (
 		remotes    map[string][]string
 		timeOut    time.Duration
 		param      Params
+		header     map[string]string
 	}
 )
 
@@ -72,9 +73,7 @@ func (r *request) SetPath(path string) *request {
 }
 
 func (r *request) SetHeader(data map[string]string) *request {
-	for k, v := range data {
-		r.SuperAgent.Set(k, v)
-	}
+	r.header = data
 
 	return r
 }
@@ -93,6 +92,21 @@ func (r *request) GetParam() *request {
 	return r
 }
 
+func (r *request) GetHeader() *request {
+	i := 0
+	for k, v := range r.header {
+		if i > 0 {
+			r.SuperAgent.AppendHeader(k, v)
+		} else {
+			r.SuperAgent.Set(k, v)
+		}
+
+		i++
+	}
+
+	return r
+}
+
 func (r *request) Get() *Response {
 
 	r.SuperAgent.Timeout(r.GetTimeOut()).Get(r.url)
@@ -100,28 +114,39 @@ func (r *request) Get() *Response {
 	r.GetParam()
 
 	res, body, err := r.SuperAgent.End()
-
-	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
-
-		return NewResponse(body, http.StatusOK)
+	if err == nil {
+		return r.responseCode(body, res.StatusCode)
 	}
 
-	return NewResponse("{}", res.StatusCode)
+	return NewResponse(body, http.StatusBadGateway)
 }
 
 func (r *request) Post() *Response {
 
 	r.SuperAgent.Timeout(r.GetTimeOut()).Post(r.url)
 
-	r.GetParam()
+	r.GetHeader().GetParam()
 
 	res, body, err := r.SuperAgent.End()
-	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
-		fmt.Println(string(body))
-		return NewResponse(body, http.StatusOK)
+	if err == nil {
+		return r.responseCode(body, res.StatusCode)
 	}
 
-	return NewResponse("{}", res.StatusCode)
+	return NewResponse(body, http.StatusBadGateway)
+}
+
+func (r *request) PostUrlEncode() *Response {
+
+	r.SuperAgent.Timeout(r.GetTimeOut()).Post(r.url)
+
+	r.GetHeader()
+
+	res, body, err := r.SuperAgent.Send(r.param).End()
+	if err == nil {
+		return r.responseCode(body, res.StatusCode)
+	}
+
+	return NewResponse(body, http.StatusBadGateway)
 }
 
 func (r *request) Put() *Response {
@@ -131,12 +156,11 @@ func (r *request) Put() *Response {
 	r.GetParam()
 
 	res, body, err := r.SuperAgent.End()
-
-	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
-		return NewResponse(body, http.StatusOK)
+	if err == nil {
+		return r.responseCode(body, res.StatusCode)
 	}
 
-	return NewResponse("{}", res.StatusCode)
+	return NewResponse(body, http.StatusBadGateway)
 }
 
 func (r *request) PostJson() *Response {
@@ -145,17 +169,15 @@ func (r *request) PostJson() *Response {
 
 	paramsJson, errMsg := json.Marshal(r.param)
 	if errMsg != nil {
-		return NewResponse("{}", 1)
+		return NewResponse("{}", 406)
 	}
 
 	res, body, err := r.SuperAgent.Send(paramsJson).End()
-
-	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
-
-		return NewResponse(body, http.StatusOK)
+	if err == nil {
+		return r.responseCode(body, res.StatusCode)
 	}
 
-	return NewResponse("{}", res.StatusCode)
+	return NewResponse(body, http.StatusBadGateway)
 }
 
 func (r *request) Delete() *Response {
@@ -164,11 +186,18 @@ func (r *request) Delete() *Response {
 	r.GetParam()
 
 	res, body, err := r.SuperAgent.End()
+	if err == nil {
+		return r.responseCode(body, res.StatusCode)
+	}
 
-	if err == nil && (res.StatusCode <= 206 && res.StatusCode >= 200) {
+	return NewResponse(body, http.StatusBadGateway)
+}
 
+func (r *request) responseCode(body string, statusCode int) *Response {
+
+	if statusCode <= 206 && statusCode >= 200 {
 		return NewResponse(body, http.StatusOK)
 	}
 
-	return NewResponse("{}", res.StatusCode)
+	return NewResponse(body, statusCode)
 }
