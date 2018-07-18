@@ -17,7 +17,7 @@ type (
 		SuperAgent *gorequest.SuperAgent
 		remotes    map[string][]string
 		timeOut    time.Duration
-		param      Params
+		param      interface{}
 		header     map[string]string
 	}
 )
@@ -78,16 +78,14 @@ func (r *request) SetHeader(data map[string]string) *request {
 	return r
 }
 
-func (r *request) SetParam(param Params) *request {
+func (r *request) SetParam(param interface{}) *request {
 	r.param = param
 
 	return r
 }
 
 func (r *request) GetParam() *request {
-	for k, v := range r.param {
-		r.SuperAgent.Param(k, v)
-	}
+	r.SuperAgent.Send(r.param)
 
 	return r
 }
@@ -139,9 +137,9 @@ func (r *request) PostUrlEncode() *Response {
 
 	r.SuperAgent.Timeout(r.GetTimeOut()).Post(r.url)
 
-	r.GetHeader()
+	r.GetHeader().GetParam()
 
-	res, body, err := r.SuperAgent.Send(r.param).End()
+	res, body, err := r.SuperAgent.End()
 	if err == nil {
 		return r.responseCode(body, res.StatusCode)
 	}

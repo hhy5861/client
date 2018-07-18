@@ -41,7 +41,7 @@ func GetClient() *client {
 func (c *client) Get(
 	remote,
 	path string,
-	queryParams Params) *Response {
+	queryParams interface{}) *Response {
 
 	return r.SetRemote(remote).SetPath(path).SetParam(queryParams).Get()
 }
@@ -50,7 +50,7 @@ func (c *client) Get(
 func (c *client) Post(
 	remote,
 	path string,
-	dataForm Params) *Response {
+	dataForm interface{}) *Response {
 
 	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).Post()
 }
@@ -59,7 +59,7 @@ func (c *client) Post(
 func (c *client) PostUrlEncode(
 	remote,
 	path string,
-	dataForm Params) *Response {
+	dataForm interface{}) *Response {
 
 	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).PostUrlEncode()
 }
@@ -68,7 +68,7 @@ func (c *client) PostUrlEncode(
 func (c *client) Put(
 	remote,
 	path string,
-	dataForm Params) *Response {
+	dataForm interface{}) *Response {
 
 	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).Put()
 }
@@ -77,7 +77,7 @@ func (c *client) Put(
 func (c *client) PostJson(
 	remote,
 	path string,
-	dataJson Params) *Response {
+	dataJson interface{}) *Response {
 
 	return r.SetRemote(remote).SetPath(path).SetParam(dataJson).PostJson()
 }
@@ -85,7 +85,7 @@ func (c *client) PostJson(
 func (c *client) Delete(
 	remote,
 	path string,
-	dataForm Params) *Response {
+	dataForm interface{}) *Response {
 
 	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).Delete()
 }
@@ -102,4 +102,8 @@ func (c *client) SetTimeOut(times time.Duration) *client {
 	r.SetTimeOut(times)
 
 	return c
+}
+
+func (c *client) AddParams(key, value string) {
+	r.SuperAgent.QueryData.Add(key, value)
 }
