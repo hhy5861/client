@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	client struct {
+	Client struct {
 		remotes map[string][]string
 		debug   bool
 	}
@@ -14,13 +14,13 @@ type (
 )
 
 var (
-	c *client
+	c *Client
 	r *request
 )
 
 // init client
-func NewClient(remotes map[string][]string, debug bool) *client {
-	c = &client{
+func NewClient(remotes map[string][]string, debug bool) *Client {
+	c = &Client{
 		remotes: remotes,
 		debug:   debug,
 	}
@@ -29,81 +29,87 @@ func NewClient(remotes map[string][]string, debug bool) *client {
 }
 
 // get client
-func GetClient() *client {
-	if r == nil {
-		r = NewRequest(c.remotes, c.debug)
-	}
+func GetClient() *Client {
+	getRequest()
 
 	return c
 }
 
+func getRequest() *request {
+	if r == nil {
+		r = NewRequest(c.remotes, c.debug)
+	}
+
+	return r
+}
+
 //request get
-func (c *client) Get(
+func (c *Client) Get(
 	remote,
 	path string,
 	queryParams interface{}) *Response {
 
-	return r.SetRemote(remote).SetPath(path).SetParam(queryParams).Get()
+	return getRequest().SetRemote(remote).SetPath(path).SetParam(queryParams).Get()
 }
 
 //request post
-func (c *client) Post(
+func (c *Client) Post(
 	remote,
 	path string,
 	dataForm interface{}) *Response {
 
-	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).Post()
+	return getRequest().SetRemote(remote).SetPath(path).SetParam(dataForm).Post()
 }
 
 //request post
-func (c *client) PostUrlEncode(
+func (c *Client) PostUrlEncode(
 	remote,
 	path string,
 	dataForm interface{}) *Response {
 
-	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).PostUrlEncode()
+	return getRequest().SetRemote(remote).SetPath(path).SetParam(dataForm).PostUrlEncode()
 }
 
 //request put
-func (c *client) Put(
+func (c *Client) Put(
 	remote,
 	path string,
 	dataForm interface{}) *Response {
 
-	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).Put()
+	return getRequest().SetRemote(remote).SetPath(path).SetParam(dataForm).Put()
 }
 
 //request post json
-func (c *client) PostJson(
+func (c *Client) PostJson(
 	remote,
 	path string,
 	dataJson interface{}) *Response {
 
-	return r.SetRemote(remote).SetPath(path).SetParam(dataJson).PostJson()
+	return getRequest().SetRemote(remote).SetPath(path).SetParam(dataJson).PostJson()
 }
 
-func (c *client) Delete(
+func (c *Client) Delete(
 	remote,
 	path string,
 	dataForm interface{}) *Response {
 
-	return r.SetRemote(remote).SetPath(path).SetParam(dataForm).Delete()
+	return getRequest().SetRemote(remote).SetPath(path).SetParam(dataForm).Delete()
 }
 
 // set request header data params
-func (c *client) SetHeader(data map[string]string) *client {
-	r.SetHeader(data)
+func (c *Client) SetHeader(data map[string]string) *Client {
+	getRequest().SetHeader(data)
 
 	return c
 }
 
 // set request time out params
-func (c *client) SetTimeOut(times time.Duration) *client {
-	r.SetTimeOut(times)
+func (c *Client) SetTimeOut(times time.Duration) *Client {
+	getRequest().SetTimeOut(times)
 
 	return c
 }
 
-func (c *client) AddParams(key, value string) {
-	r.SuperAgent.QueryData.Add(key, value)
+func (c *Client) AddParams(key, value string) {
+	getRequest().SuperAgent.QueryData.Add(key, value)
 }
