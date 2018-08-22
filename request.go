@@ -109,12 +109,7 @@ func (r *request) Get() *Response {
 
 	r.SuperAgent.Timeout(r.GetTimeOut()).Get(r.url)
 
-	//for k, v := range r.param.(map[string]string) {
-	//	r.SuperAgent.Param(k, v)
-	//}
-
-	r.GetParam()
-	res, body, err := r.SuperAgent.End()
+	res, body, err := r.SuperAgent.Query(r.param).End()
 	if err == nil {
 		return r.responseCode(body, res.StatusCode)
 	}
